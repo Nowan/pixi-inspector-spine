@@ -5,6 +5,7 @@
   import SceneProperties from "./SceneProperties.svelte";
   import ObjectProperties from "./ObjectProperties.svelte";
   import TextProperties from "./TextProperties.svelte";
+  import SpineProperties from "./SpineProperties.svelte";
 
   const bridge = getBridgeContext();
 
@@ -24,6 +25,7 @@
     { group: "scene", icon: "scene", label: "Scene Properties" },
     { group: "object", icon: "object", label: "Object Properties" },
     { group: "text", icon: "text", label: "Text Properties" },
+    { group: "spine", icon: "spine", label: "Spine Properties" },
   ];
 
   $: props = $state.data?.properties ?? {};
@@ -86,6 +88,12 @@
         />
       {:else if active?.group === "text"}
         <TextProperties
+          {props}
+          bind:expanded
+          on:change={(e) => onChange(e.detail.property, e.detail.value)}
+        />
+      {:else if active?.group === "spine"}
+        <SpineProperties
           {props}
           bind:expanded
           on:change={(e) => onChange(e.detail.property, e.detail.value)}

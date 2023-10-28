@@ -211,6 +211,12 @@ export default function pixiDevtoolsProperties(devtools: PixiDevtools) {
         textDefs.push(...nestedProp(node, "style", "padding", "number"));
       }
 
+      // Spine
+      const spineDefs: PropertyMapping[] = [];
+      if (devtools.isPixi(node as UniversalNode)) {
+        spineDefs.push(...pointProperty(node, "pivot", "pivotX", "pivotY"));
+      }
+
       // Scene
       const sceneDefs: PropertyMapping[] = [];
       sceneDefs.push(...nestedProp(node, "ticker", "speed", "number"));
@@ -238,6 +244,7 @@ export default function pixiDevtoolsProperties(devtools: PixiDevtools) {
         object: objectDefs,
         text: textDefs,
         scene: sceneDefs,
+        spine: spineDefs
       };
     }
     return (node as any)[metaProperty];
@@ -250,6 +257,7 @@ export default function pixiDevtoolsProperties(devtools: PixiDevtools) {
       object: [],
       text: [],
       scene: [],
+      spine: []
     };
     const app = devtools.app();
     if (app) {
@@ -261,11 +269,14 @@ export default function pixiDevtoolsProperties(devtools: PixiDevtools) {
       const nodeDefinitions = getPropDefinition(node);
       definitions.object.push(...nodeDefinitions.object);
       definitions.text.push(...nodeDefinitions.text);
+      definitions.spine.push(...nodeDefinitions.spine);
     }
     let active = preferred as PropertyTab;
     // definitions: Record<PropertyTab, PropertyMapping[]>
     if (!preferred || definitions[preferred].length === 0) {
-      if (definitions.text.length !== 0) {
+      if (definitions.spine.length !== 0) {
+        active = "spine";
+      } else if (definitions.text.length !== 0) {
         active = "text";
       } else if (definitions.object.length !== 0) {
         active = "object";

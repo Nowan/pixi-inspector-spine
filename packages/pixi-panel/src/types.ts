@@ -46,7 +46,7 @@ export type UniversalNode =
   | Scenes.SceneManager
   | GameObjects.Particles.ParticleEmitter;
 
-export type PropertyTab = "scene" | "object" | "text";
+export type PropertyTab = "scene" | "object" | "text" | "spine";
 export type PropertyTabState = {
   tabs: PropertyTab[];
   active: PropertyTab;
