@@ -11,6 +11,7 @@ import type {
   TextStyleTextBaseline,
   TextStyleWhiteSpace,
 } from "pixi.js";
+import type { Spine } from "pixi-spine";
 import type pixiDevtools from "./pixi-devtools/pixiDevtools";
 import type pixiDevtoolsViewport from "./pixi-devtools/pixiDevtoolsViewport";
 import type pixiDevtoolsOverlay from "./pixi-devtools/pixiDevtoolsOverlay";
@@ -41,6 +42,7 @@ export type OutlinerNode = {
 /** A node in an PixiJS stage or Phaser scene */
 export type UniversalNode =
   | DisplayObject
+  | Spine
   | Scene
   | GameObjects.GameObject
   | Scenes.SceneManager
@@ -111,4 +113,9 @@ export type NodeProperties = {
   whiteSpace?: TextStyleWhiteSpace;
   wordWrap?: boolean;
   wordWrapWidth?: number;
-};
+} & SpineProperties;
+
+export type SpineProperties = {
+  animationName?: string;
+  animationNames?: string[];
+}

@@ -1,8 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
+  import SelectMenu from "blender-elements/src/SelectMenu/SelectMenu.svelte";
   import Panel from "blender-elements/src/Panel/Panel.svelte";
-  import NumberField from "blender-elements/src/NumberField/NumberField.svelte";
-  import Property from "blender-elements/src/Property/Property.svelte";
   import type { NodeProperties } from "./types";
 
   export let props: NodeProperties;
@@ -10,37 +9,17 @@
 
   const dispatch = createEventDispatcher();
 
-  $: transformOriginPanel =
-    typeof props.originX === "number" ||
-    typeof props.anchorX === "number" ||
-    typeof props.pivotX === "number";
+  $: animationNamesPanel =
+    typeof props.animationNames === "object" &&
+    Array.isArray(props.animationNames);
 </script>
 
-{#if transformOriginPanel}
-  <Panel title="Transform Origin" bind:expanded={expanded.transformOrigin}>
-    {#if typeof props.pivotX === "number"}
-      <Property
-        label="Pivot X"
-        group
-        hint="The center of rotation, scaling, and skewing for this display object in its local space"
-      >
-        <NumberField
-          value={props.pivotX}
-          step={0.1}
-          location="TOP"
-          on:change={(e) =>
-            dispatch("change", { property: "pivotX", value: e.detail })}
-        />
-      </Property>
-      <Property label="Y">
-        <NumberField
-          value={props.pivotY}
-          step={0.1}
-          location="BOTTOM"
-          on:change={(e) =>
-            dispatch("change", { property: "pivotY", value: e.detail })}
-        /></Property
-      >
-    {/if}
+{#if animationNamesPanel && Array.isArray(props.animationNames)}
+  <Panel title="Track 0" bind:expanded={expanded.ticker}>
+    <SelectMenu
+      value={props.animationName || "-- setup pose --"}
+      options={[ "-- setup pose --", ...props.animationNames ]}
+      on:change={(e) => dispatch("change", { property: "animationName", value: e.detail })}
+    />
   </Panel>
 {/if}

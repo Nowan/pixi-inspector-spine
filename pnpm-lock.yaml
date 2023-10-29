@@ -123,18 +123,6 @@ importers:
         specifier: ^4.5.0
         version: 4.5.0(@types/node@20.8.7)(sass@1.69.4)
 
-  apps/example-pixi-spine-project:
-    dependencies:
-      pixi-spine:
-        specifier: ^4.0.4
-        version: 4.0.4(@pixi/assets@7.3.2)(@pixi/core@7.3.2)(@pixi/display@7.3.2)(@pixi/graphics@7.3.2)(@pixi/mesh-extras@7.3.2)(@pixi/mesh@7.3.2)(@pixi/sprite@7.3.2)
-      pixi.js:
-        specifier: ^7.3.2
-        version: 7.3.2(@pixi/utils@7.3.2)
-      vite:
-        specifier: ^4.5.0
-        version: 4.5.0(@types/node@20.8.7)(sass@1.69.4)
-
   apps/firefox-extension:
     dependencies:
       web-ext:
@@ -186,6 +174,9 @@ importers:
       phaser:
         specifier: ^3.60.0
         version: 3.60.0
+      pixi-spine:
+        specifier: ^4.0.4
+        version: 4.0.4(@pixi/assets@7.3.2)(@pixi/core@7.3.2)(@pixi/display@7.3.2)(@pixi/graphics@7.3.2)(@pixi/mesh-extras@7.3.2)(@pixi/mesh@7.3.2)(@pixi/sprite@7.3.2)
       pixi.js:
         specifier: ^7.3.2
         version: 7.3.2(@pixi/utils@7.3.2)
@@ -941,7 +932,6 @@ packages:
       '@pixi/mesh': 7.3.2(@pixi/core@7.3.2)(@pixi/display@7.3.2)
       '@pixi/mesh-extras': 7.3.2(@pixi/core@7.3.2)(@pixi/mesh@7.3.2)
       '@pixi/sprite': 7.3.2(@pixi/core@7.3.2)(@pixi/display@7.3.2)
-    dev: false
 
   /@pixi-spine/loader-base@4.0.4(@pixi-spine/base@4.0.3)(@pixi/assets@7.3.2)(@pixi/core@7.3.2):
     resolution: {integrity: sha512-Grgu+PxiUpgYWpuMRr3h5jrN3ZTnwyXfu3HuYdFb6mbJTTMub4xBPALeui+O+tw0k9RNRAr99pUzu9Rc9XTbAw==}
@@ -953,7 +943,6 @@ packages:
       '@pixi-spine/base': 4.0.3(@pixi/core@7.3.2)(@pixi/display@7.3.2)(@pixi/graphics@7.3.2)(@pixi/mesh-extras@7.3.2)(@pixi/mesh@7.3.2)(@pixi/sprite@7.3.2)
       '@pixi/assets': 7.3.2(@pixi/core@7.3.2)(@pixi/utils@7.3.2)
       '@pixi/core': 7.3.2
-    dev: false
 
   /@pixi-spine/loader-uni@4.0.3(@pixi-spine/base@4.0.3)(@pixi-spine/loader-base@4.0.4)(@pixi-spine/runtime-3.7@4.0.3)(@pixi-spine/runtime-3.8@4.0.3)(@pixi-spine/runtime-4.1@4.0.3)(@pixi/assets@7.3.2)(@pixi/core@7.3.2)(@pixi/display@7.3.2)(@pixi/graphics@7.3.2)(@pixi/mesh-extras@7.3.2)(@pixi/mesh@7.3.2)(@pixi/sprite@7.3.2):
     resolution: {integrity: sha512-tfhTJrnuog8ObKbbiSG1wV/nIUc3O98WfwS6lCmewaupoMIKF0ujg21MCqXUXJvljQJzU9tbURI+DWu4w9dnnA==}
@@ -983,7 +972,6 @@ packages:
       '@pixi/mesh': 7.3.2(@pixi/core@7.3.2)(@pixi/display@7.3.2)
       '@pixi/mesh-extras': 7.3.2(@pixi/core@7.3.2)(@pixi/mesh@7.3.2)
       '@pixi/sprite': 7.3.2(@pixi/core@7.3.2)(@pixi/display@7.3.2)
-    dev: false
 
   /@pixi-spine/runtime-3.7@4.0.3(@pixi-spine/base@4.0.3)(@pixi/core@7.3.2):
     resolution: {integrity: sha512-zuopKtSqjRc37wjW5xJ64j9DbiBB7rkPMFeldeWBPCbfZiCcFcwSZwZnrcgC+f4HIGo0NeviAvJGM8Hcf3AyeA==}
@@ -993,7 +981,6 @@ packages:
     dependencies:
       '@pixi-spine/base': 4.0.3(@pixi/core@7.3.2)(@pixi/display@7.3.2)(@pixi/graphics@7.3.2)(@pixi/mesh-extras@7.3.2)(@pixi/mesh@7.3.2)(@pixi/sprite@7.3.2)
       '@pixi/core': 7.3.2
-    dev: false
 
   /@pixi-spine/runtime-3.8@4.0.3(@pixi-spine/base@4.0.3)(@pixi/core@7.3.2):
     resolution: {integrity: sha512-lIhb4jOTon+FVYLO9AIgcB6jf9hC+RLEn8PesaDRibDocQ1htVCkEIhCIU3Mc00fuqIby7lMBsINeS/Th0q3bw==}
@@ -1003,7 +990,6 @@ packages:
     dependencies:
       '@pixi-spine/base': 4.0.3(@pixi/core@7.3.2)(@pixi/display@7.3.2)(@pixi/graphics@7.3.2)(@pixi/mesh-extras@7.3.2)(@pixi/mesh@7.3.2)(@pixi/sprite@7.3.2)
       '@pixi/core': 7.3.2
-    dev: false
 
   /@pixi-spine/runtime-4.0@4.0.3(@pixi-spine/base@4.0.3)(@pixi/core@7.3.2):
     resolution: {integrity: sha512-2Y8qhxRkg/yH/9VylGsRVAd5W+dXVPhHTjFk0RR9wEUzTCkdZ17pE+56s2nESi2X3sYNKkz8FowfaqIvXnVGxw==}
@@ -1013,7 +999,6 @@ packages:
     dependencies:
       '@pixi-spine/base': 4.0.3(@pixi/core@7.3.2)(@pixi/display@7.3.2)(@pixi/graphics@7.3.2)(@pixi/mesh-extras@7.3.2)(@pixi/mesh@7.3.2)(@pixi/sprite@7.3.2)
       '@pixi/core': 7.3.2
-    dev: false
 
   /@pixi-spine/runtime-4.1@4.0.3(@pixi-spine/base@4.0.3)(@pixi/core@7.3.2):
     resolution: {integrity: sha512-jK433snCQMC4FUPiDgyIcxhiatvRNSxqgs0CgHjjQ0l8GlY6gPpkkdThQ6GsFNme1SUZ4uvnWwawXFIGjW1IpQ==}
@@ -1023,7 +1008,6 @@ packages:
     dependencies:
       '@pixi-spine/base': 4.0.3(@pixi/core@7.3.2)(@pixi/display@7.3.2)(@pixi/graphics@7.3.2)(@pixi/mesh-extras@7.3.2)(@pixi/mesh@7.3.2)(@pixi/sprite@7.3.2)
       '@pixi/core': 7.3.2
-    dev: false
 
   /@pixi/accessibility@7.3.2(@pixi/core@7.3.2)(@pixi/display@7.3.2)(@pixi/events@7.3.2):
     resolution: {integrity: sha512-MdkU22HTauRvq9cMeWZIQGaDDa86sr+m12rKNdLV+FaDQgP/AhP+qCVpK7IKeJa9BrWGXaYMw/vueij7HkyDSA==}
@@ -5480,7 +5464,6 @@ packages:
       '@pixi/mesh': 7.3.2(@pixi/core@7.3.2)(@pixi/display@7.3.2)
       '@pixi/mesh-extras': 7.3.2(@pixi/core@7.3.2)(@pixi/mesh@7.3.2)
       '@pixi/sprite': 7.3.2(@pixi/core@7.3.2)(@pixi/display@7.3.2)
-    dev: false
 
   /pixi.js@7.3.2(@pixi/utils@7.3.2):
     resolution: {integrity: sha512-GJickUrT3UcBInGT1CU6cv2oktCdocE5QM74CD3t+weiJPPWIzleNlp7zrBR5QIDdU6bEO8CUgUXH2Y9QvlCMw==}
