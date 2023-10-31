@@ -4,7 +4,10 @@
   "devDependencies": {
     "blender-elements": "workspace:*",
     "phaser": "^3.60.0",
-    "pixi.js": "^7.3.2",
-    "pixi-spine": "^4.0.4"
+    "pixi-spine": "^4.0.4",
+    "pixi.js": "^7.3.2"
+  },
+  "dependencies": {
+    "animation-timeline-js": "^2.3.0"
   }
 }
