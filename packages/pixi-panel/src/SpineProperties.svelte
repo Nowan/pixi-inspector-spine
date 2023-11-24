@@ -1,22 +1,56 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount } from "svelte";
+  import { afterUpdate, createEventDispatcher, onMount } from "svelte";
   import SelectMenu from "blender-elements/src/SelectMenu/SelectMenu.svelte";
   import Panel from "blender-elements/src/Panel/Panel.svelte";
   import Toggle from "blender-elements/src/Toggle/Toggle.svelte";
-  import { Timeline, TimelineInteractionMode, TimelineKeyframeShape } from "animation-timeline-js";
+  import { Timeline, TimelineEventSource, TimelineInteractionMode, TimelineKeyframeShape, TimelineTimeChangedEvent } from "animation-timeline-js";
   import type { NodeProperties } from "./types";
 
   export let props: NodeProperties;
   export let expanded: Record<string, boolean>;
+  let prevProps: NodeProperties = props;
 
   const dispatch = createEventDispatcher();
 
-  $: animationNamesPanel =
-    typeof props.animationNames === "object" &&
-    Array.isArray(props.animationNames);
+  const DEFAULT_ROW_STYLE = {
+    groupsStyle: {
+      strokeColor: "Transparent",
+      fillColor: "#094771",
+      keyframesStyle: {
+        shape: TimelineKeyframeShape.Rect,
+        width: 2,
+        height: 20,
+        strokeColor: "Transparent",
+        fillColor: "Transparent"
+      }
+    }
+  };
 
   let timelineContainerElement: HTMLDivElement;
   let timeline: Timeline;
+
+  $: {
+    if (props.spineAnimationDuration && props.spineAnimationDuration !== prevProps.spineAnimationDuration) {
+      timeline.setModel({ 
+        rows: [
+          {
+            keyframes: [ { val: 0 }, { val: props.spineAnimationDuration * 1000 } ],
+            style: DEFAULT_ROW_STYLE
+          }
+        ]
+      });
+    }
+
+     prevProps = props;
+  }
+
+  $: animationNamesPanel =
+    typeof props.spineAnimationNames === "object" &&
+    Array.isArray(props.spineAnimationNames);
+
+  afterUpdate(() => {
+    timeline.setTime((props.spineAnimationHead || 0) * 1000);
+  })
 
   onMount(() => {
 		timeline = new Timeline({ 
@@ -25,41 +59,36 @@
       keyframesDraggable: false,
       headerFillColor: "#292929",
       fillColor: "#292929",
-      leftMargin: 3
+      leftMargin: 3,
+      snapStep: 1
     });
-    timeline.setModel({ 
-      rows: [
-        {
-          keyframes: [
-            {
-              val: 0,
-            },
-            {
-              val: 3000
-            }
-          ],
-          style: {
-            groupsStyle: {
-              strokeColor: "Transparent",
-              fillColor: "#094771",
-              keyframesStyle: {
-                shape: TimelineKeyframeShape.Rect,
-                width: 2,
-                height: 20,
-                strokeColor: "Transparent",
-                fillColor: "Transparent"
-              }
-            }
-          },
-        }
-      ]
-    });
+    
+    if (props.spineAnimationDuration) {
+      timeline.setModel({ 
+        rows: [
+          {
+            keyframes: [ { val: 0 }, { val: 1000 } ],
+            style: DEFAULT_ROW_STYLE
+          }
+        ]
+      });
+    }
+    
+    timeline.setTime((props.spineAnimationHead || 0) * 1000);
     timeline.setInteractionMode(TimelineInteractionMode.NonInteractivePan);
+
+    timeline.onTimeChanged((event: TimelineTimeChangedEvent) => {
+      if(event.source === TimelineEventSource.User) {
+        dispatch("change", { property: "spineAnimationHead", value: event.val / 1000 })
+      }
+    });
+
+    timeline._formatUnitsText = (val) => `${val / 1000}s`; // eslint-disable-line no-underscore-dangle
 	});
 
 </script>
 
-{#if animationNamesPanel && Array.isArray(props.animationNames) && props.animationNames.length > 0}
+{#if animationNamesPanel && Array.isArray(props.spineAnimationNames) && props.spineAnimationNames.length > 0}
   <Panel title="Playback" bind:expanded={expanded.tracks}>
     <div class="playback-controls">
       <div class="secondary-controls">
@@ -104,9 +133,9 @@
   </Panel>
   <Panel title="Track 0" bind:expanded={expanded.ticker}>
     <SelectMenu
-      value={props.animationName || "-- setup pose --"}
-      options={[ "-- setup pose --", ...props.animationNames ]}
-      on:change={(e) => dispatch("change", { property: "animationName", value: e.detail })}
+      value={props.spineAnimationName || "-- setup pose --"}
+      options={[ "-- setup pose --", ...props.spineAnimationNames ]}
+      on:change={(e) => dispatch("change", { property: "spineAnimationName", value: e.detail })}
     />
   </Panel>
 {/if}

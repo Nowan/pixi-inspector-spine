@@ -1,6 +1,6 @@
 import type { GameObjects } from "phaser";
 import type { Application, DisplayObject } from "pixi.js";
-import type { ITrackEntry, IAnimation } from "pixi-spine";
+import type { ITrackEntry, IAnimation, Spine } from "pixi-spine";
 import type {
   NodeProperties,
   PixiDevtools,
@@ -215,11 +215,12 @@ export default function pixiDevtoolsProperties(devtools: PixiDevtools) {
       // Spine
       const spineDefs: PropertyMapping[] = [];
       if (devtools.isPixi(node as UniversalNode) && "spineData" in node && "state" in node) {
+        const spine = node as Spine;
         spineDefs.push({ 
-          key: "animationName", 
+          key: "spineAnimationName", 
           get: () => {
-            if (node.state.tracks.length > 0) {
-              const track = node.state.tracks[0] as ITrackEntry & { animation: IAnimation | undefined }
+            if (spine.state.tracks.length > 0) {
+              const track = spine.state.tracks[0] as ITrackEntry & { animation: IAnimation | undefined }
               return track.animation ? track.animation.name : "";
             }
             
@@ -227,15 +228,21 @@ export default function pixiDevtoolsProperties(devtools: PixiDevtools) {
           }, 
           set: (value) => {
             if (value === "-- setup pose --") {
-              node.skeleton.setToSetupPose();
-              node.state.tracks.length = 0; // eslint-disable-line no-param-reassign
+              spine.skeleton.setToSetupPose();
+              spine.state.tracks.length = 0; // eslint-disable-line no-param-reassign
             }
             else {
-              node.state.setAnimation(0, value, true);
+              spine.state.setAnimation(0, value, true);
             }
           }
         });
-        spineDefs.push({ key: "animationNames", get: () => node.spineData.animations.map(animation => animation.name), set: () => {} });
+        spineDefs.push({ key: "spineAnimationHead", get: () => spine.state.tracks[0].trackTime % spine.state.tracks[0].animationEnd, set: head => {
+          spine.state.tracks[0].trackTime = 0;
+          spine.autoUpdate = false;
+          spine.update(head)
+        } });
+        spineDefs.push({ key: "spineAnimationDuration", get: () => spine.state.tracks[0].animationEnd, set: () => {} });
+        spineDefs.push({ key: "spineAnimationNames", get: () => spine.spineData.animations.map(animation => animation.name), set: () => {} });
       }
 
       // Scene

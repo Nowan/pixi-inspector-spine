@@ -116,6 +116,8 @@ export type NodeProperties = {
 } & SpineProperties;
 
 export type SpineProperties = {
-  animationName?: string;
-  animationNames?: string[];
+  spineAnimationName?: string;
+  spineAnimationNames?: string[];
+  spineAnimationHead?: number;
+  spineAnimationDuration?: number;
 }

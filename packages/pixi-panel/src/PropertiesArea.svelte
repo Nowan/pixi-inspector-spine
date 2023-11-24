@@ -12,7 +12,7 @@
   const state = poll<PropertyTabState>(
     bridge,
     "__PIXI_DEVTOOLS__.properties.values()",
-    300,
+    1,
   );
   export const refresh = state.sync;
 
