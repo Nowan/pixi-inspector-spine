@@ -8,9 +8,10 @@
   const dispatch = createEventDispatcher();
 
   export let props: SpineProperties;
+  export let expanded: boolean;
 </script>
 
-<Panel title="Playback">
+<Panel title="Playback" bind:expanded>
   <div class="playback-controls">
     <div class="secondary-controls">
       <Toggle

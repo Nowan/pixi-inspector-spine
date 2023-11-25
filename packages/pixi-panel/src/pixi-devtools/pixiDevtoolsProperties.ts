@@ -116,19 +116,19 @@ export default function pixiDevtoolsProperties(devtools: PixiDevtools) {
           return "";
         }, 
         set: (value) => {
-          if (value === "-- setup pose --") {
-            spine.skeleton.setToSetupPose();
-            spine.state.tracks.length = 0; // eslint-disable-line no-param-reassign
+          if (value) {
+            spine.state.setAnimation(0, value, true);
           }
           else {
-            spine.state.setAnimation(0, value, true);
+            spine.skeleton.setToSetupPose();
+            spine.state.tracks.length = 0; // eslint-disable-line no-param-reassign
           }
         }
       });
 
       spineDefs.push({ 
         key: "spineAnimationHead", 
-        get: () => spine.state.tracks[0].trackTime % spine.state.tracks[0].animationEnd, 
+        get: () => spine.state.tracks[0] ? spine.state.tracks[0].trackTime % spine.state.tracks[0].animationEnd : 0,
         set: head => {
           const { timeScale } = spine.state;
 
@@ -139,7 +139,7 @@ export default function pixiDevtoolsProperties(devtools: PixiDevtools) {
         }
       });
 
-      spineDefs.push({ key: "spineAnimationDuration", get: () => spine.state.tracks[0].animationEnd, set: () => {} });
+      spineDefs.push({ key: "spineAnimationDuration", get: () => spine.state.tracks[0] ? spine.state.tracks[0].animationEnd : 0, set: () => {} });
       spineDefs.push({ key: "spineAnimationNames", get: () => spine.spineData.animations.map(animation => animation.name), set: () => {} });
       spineDefs.push({ key: "spinePlaybackSpeed", get: () => spine.state.timeScale, set: playbackSpeed => { spine.state.timeScale = playbackSpeed; } });
     }
