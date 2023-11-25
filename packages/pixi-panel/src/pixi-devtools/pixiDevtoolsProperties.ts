@@ -237,12 +237,18 @@ export default function pixiDevtoolsProperties(devtools: PixiDevtools) {
           }
         });
         spineDefs.push({ key: "spineAnimationHead", get: () => spine.state.tracks[0].trackTime % spine.state.tracks[0].animationEnd, set: head => {
+          const { timeScale } = spine.state;
+
+          spine.state.timeScale = 1;
           spine.state.tracks[0].trackTime = 0;
-          spine.autoUpdate = false;
           spine.update(head)
+          spine.state.timeScale = timeScale;
         } });
         spineDefs.push({ key: "spineAnimationDuration", get: () => spine.state.tracks[0].animationEnd, set: () => {} });
         spineDefs.push({ key: "spineAnimationNames", get: () => spine.spineData.animations.map(animation => animation.name), set: () => {} });
+        spineDefs.push({ key: "spinePlaybackSpeed", get: () => spine.state.timeScale, set: playbackSpeed => { 
+          spine.state.timeScale = playbackSpeed 
+        } });
       }
 
       // Scene

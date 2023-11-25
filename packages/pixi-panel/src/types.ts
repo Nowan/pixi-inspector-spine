@@ -120,4 +120,5 @@ export type SpineProperties = {
   spineAnimationNames?: string[];
   spineAnimationHead?: number;
   spineAnimationDuration?: number;
+  spinePlaybackSpeed?: number;
 }

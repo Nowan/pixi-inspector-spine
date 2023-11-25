@@ -3,7 +3,16 @@
   import SelectMenu from "blender-elements/src/SelectMenu/SelectMenu.svelte";
   import Panel from "blender-elements/src/Panel/Panel.svelte";
   import Toggle from "blender-elements/src/Toggle/Toggle.svelte";
-  import { Timeline, TimelineEventSource, TimelineInteractionMode, TimelineKeyframeShape, TimelineTimeChangedEvent } from "animation-timeline-js";
+  import { 
+    Timeline,
+    TimelineEventSource, 
+    TimelineInteractionMode, 
+    TimelineKeyframeShape, 
+    TimelineModel, 
+    TimelineOptions, 
+    TimelineTimeChangedEvent 
+  } from "animation-timeline-js";
+
   import type { NodeProperties } from "./types";
 
   export let props: NodeProperties;
@@ -12,7 +21,7 @@
 
   const dispatch = createEventDispatcher();
 
-  const DEFAULT_ROW_STYLE = {
+  const ROW_STYLE = Object.freeze({
     groupsStyle: {
       strokeColor: "Transparent",
       fillColor: "#094771",
@@ -24,7 +33,7 @@
         fillColor: "Transparent"
       }
     }
-  };
+  });
 
   let timelineContainerElement: HTMLDivElement;
   let timeline: Timeline;
@@ -35,7 +44,7 @@
         rows: [
           {
             keyframes: [ { val: 0 }, { val: props.spineAnimationDuration * 1000 } ],
-            style: DEFAULT_ROW_STYLE
+            style: ROW_STYLE
           }
         ]
       });
@@ -53,29 +62,45 @@
   })
 
   onMount(() => {
-		timeline = new Timeline({ 
+    const options: TimelineOptions = { 
       id: timelineContainerElement, 
       groupsDraggable: false, 
       keyframesDraggable: false,
       headerFillColor: "#292929",
       fillColor: "#292929",
       leftMargin: 3,
-      snapStep: 1
-    });
-    
+      snapEnabled: false
+    };
+
+    const model : TimelineModel = {
+      rows: [
+        {
+          keyframes: [],
+          style: { ...ROW_STYLE }
+        }
+      ]
+    };
+
     if (props.spineAnimationDuration) {
-      timeline.setModel({ 
-        rows: [
-          {
-            keyframes: [ { val: 0 }, { val: 1000 } ],
-            style: DEFAULT_ROW_STYLE
-          }
-        ]
-      });
+      model.rows[0].keyframes?.push({ val: 0 }, { val: props.spineAnimationDuration * 1000 })
     }
-    
+
+		timeline = new Timeline(options, model);
+
     timeline.setTime((props.spineAnimationHead || 0) * 1000);
     timeline.setInteractionMode(TimelineInteractionMode.NonInteractivePan);
+
+    timeline.onMouseDown(() => {
+      const lockedPlaybackSpeed = props.spinePlaybackSpeed;
+      const restorePlaybackSpeed = () => dispatch("change", { property: "spinePlaybackSpeed", value: lockedPlaybackSpeed })
+      const restorePlaybackSpeedSelfDisposed = () => {
+        restorePlaybackSpeed()
+        window.removeEventListener("mouseup", restorePlaybackSpeedSelfDisposed)
+      }
+
+      dispatch("change", { property: "spinePlaybackSpeed", value: 0 })
+      window.addEventListener("mouseup", restorePlaybackSpeedSelfDisposed)
+    });
 
     timeline.onTimeChanged((event: TimelineTimeChangedEvent) => {
       if(event.source === TimelineEventSource.User) {
@@ -104,17 +129,15 @@
       <div class="primary-controls">
         <Toggle
           icon="playBackward"
-          value={false}
+          value={props.spinePlaybackSpeed ? props.spinePlaybackSpeed < 0 : false}
           location="LEFT"
-          on:change={() =>
-            dispatch("change", { property: "fontStyle", value: "normal" })}
+          on:change={event => dispatch("change", { property: "spinePlaybackSpeed", value: event.detail ? -1 : 0 })}
         />
         <Toggle
           icon="playForward"
-          value={false}
+          value={props.spinePlaybackSpeed ? props.spinePlaybackSpeed > 0 : false}
           location="RIGHT"
-          on:change={() =>
-            dispatch("change", { property: "fontStyle", value: "oblique" })}
+          on:change={event => dispatch("change", { property: "spinePlaybackSpeed", value: event.detail ? 1 : 0 })}
         />
       </div>
 
