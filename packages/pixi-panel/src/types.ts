@@ -18,6 +18,7 @@ import type pixiDevtoolsOverlay from "./pixi-devtools/pixiDevtoolsOverlay";
 import type pixiDevtoolsOutline from "./pixi-devtools/pixiDevtoolsOutline";
 import type pixiDevtoolsProperties from "./pixi-devtools/pixiDevtoolsProperties";
 import type pixiDevtoolsSelection from "./pixi-devtools/pixiDevtoolsSelection";
+import type { SpineProperties } from "./spine/types";
 
 export type BridgeFn = <T>(code: string) => Promise<T>;
 
@@ -53,6 +54,12 @@ export type PropertyTabState = {
   tabs: PropertyTab[];
   active: PropertyTab;
   properties?: NodeProperties;
+};
+
+export type PropertyMapping<T = any> = {
+  key: keyof NodeProperties;
+  get(): T;
+  set(value: T): void;
 };
 
 export type NodeProperties = {
@@ -114,11 +121,3 @@ export type NodeProperties = {
   wordWrap?: boolean;
   wordWrapWidth?: number;
 } & SpineProperties;
-
-export type SpineProperties = {
-  spineAnimationName?: string;
-  spineAnimationNames?: string[];
-  spineAnimationHead?: number;
-  spineAnimationDuration?: number;
-  spinePlaybackSpeed?: number;
-}

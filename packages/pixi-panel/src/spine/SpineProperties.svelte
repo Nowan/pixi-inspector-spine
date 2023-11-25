@@ -13,11 +13,11 @@
     TimelineTimeChangedEvent 
   } from "animation-timeline-js";
 
-  import type { NodeProperties } from "./types";
+  import type { SpineProperties } from "./types";
 
-  export let props: NodeProperties;
+  export let props: SpineProperties;
   export let expanded: Record<string, boolean>;
-  let prevProps: NodeProperties = props;
+  let prevProps: SpineProperties = props;
 
   const dispatch = createEventDispatcher();
 
@@ -85,8 +85,7 @@
       model.rows[0].keyframes?.push({ val: 0 }, { val: props.spineAnimationDuration * 1000 })
     }
 
-		timeline = new Timeline(options, model);
-
+    timeline = new Timeline(options, model);
     timeline.setTime((props.spineAnimationHead || 0) * 1000);
     timeline.setInteractionMode(TimelineInteractionMode.NonInteractivePan);
 
@@ -109,7 +108,7 @@
     });
 
     timeline._formatUnitsText = (val) => `${val / 1000}s`; // eslint-disable-line no-underscore-dangle
-	});
+    });
 
 </script>
 

@@ -5,7 +5,7 @@
   import SceneProperties from "./SceneProperties.svelte";
   import ObjectProperties from "./ObjectProperties.svelte";
   import TextProperties from "./TextProperties.svelte";
-  import SpineProperties from "./SpineProperties.svelte";
+  import SpineProperties from "./spine/SpineProperties.svelte";
 
   const bridge = getBridgeContext();
 

@@ -100,6 +100,53 @@ export default function pixiDevtoolsProperties(devtools: PixiDevtools) {
     return [];
   }
 
+  function getSpinePropDefinitions(node: UniversalNode | Application): PropertyMapping[] {
+    const spineDefs: PropertyMapping[] = [];
+
+    if (devtools.isPixi(node as UniversalNode) && "spineData" in node && "state" in node) {
+      const spine = node as Spine;
+
+      spineDefs.push({ 
+        key: "spineAnimationName", 
+        get: () => {
+          if (spine.state.tracks.length > 0) {
+            const track = spine.state.tracks[0] as ITrackEntry & { animation: IAnimation | undefined }
+            return track.animation ? track.animation.name : "";
+          }
+          return "";
+        }, 
+        set: (value) => {
+          if (value === "-- setup pose --") {
+            spine.skeleton.setToSetupPose();
+            spine.state.tracks.length = 0; // eslint-disable-line no-param-reassign
+          }
+          else {
+            spine.state.setAnimation(0, value, true);
+          }
+        }
+      });
+
+      spineDefs.push({ 
+        key: "spineAnimationHead", 
+        get: () => spine.state.tracks[0].trackTime % spine.state.tracks[0].animationEnd, 
+        set: head => {
+          const { timeScale } = spine.state;
+
+          spine.state.timeScale = 1;
+          spine.state.tracks[0].trackTime = 0;
+          spine.update(head)
+          spine.state.timeScale = timeScale;
+        }
+      });
+
+      spineDefs.push({ key: "spineAnimationDuration", get: () => spine.state.tracks[0].animationEnd, set: () => {} });
+      spineDefs.push({ key: "spineAnimationNames", get: () => spine.spineData.animations.map(animation => animation.name), set: () => {} });
+      spineDefs.push({ key: "spinePlaybackSpeed", get: () => spine.state.timeScale, set: playbackSpeed => { spine.state.timeScale = playbackSpeed; } });
+    }
+
+    return spineDefs;
+  }
+
   function getPropDefinition(
     node: UniversalNode | Application,
   ): Record<PropertyTab, PropertyMapping[]> {
@@ -213,43 +260,7 @@ export default function pixiDevtoolsProperties(devtools: PixiDevtools) {
       }
 
       // Spine
-      const spineDefs: PropertyMapping[] = [];
-      if (devtools.isPixi(node as UniversalNode) && "spineData" in node && "state" in node) {
-        const spine = node as Spine;
-        spineDefs.push({ 
-          key: "spineAnimationName", 
-          get: () => {
-            if (spine.state.tracks.length > 0) {
-              const track = spine.state.tracks[0] as ITrackEntry & { animation: IAnimation | undefined }
-              return track.animation ? track.animation.name : "";
-            }
-            
-            return "";
-          }, 
-          set: (value) => {
-            if (value === "-- setup pose --") {
-              spine.skeleton.setToSetupPose();
-              spine.state.tracks.length = 0; // eslint-disable-line no-param-reassign
-            }
-            else {
-              spine.state.setAnimation(0, value, true);
-            }
-          }
-        });
-        spineDefs.push({ key: "spineAnimationHead", get: () => spine.state.tracks[0].trackTime % spine.state.tracks[0].animationEnd, set: head => {
-          const { timeScale } = spine.state;
-
-          spine.state.timeScale = 1;
-          spine.state.tracks[0].trackTime = 0;
-          spine.update(head)
-          spine.state.timeScale = timeScale;
-        } });
-        spineDefs.push({ key: "spineAnimationDuration", get: () => spine.state.tracks[0].animationEnd, set: () => {} });
-        spineDefs.push({ key: "spineAnimationNames", get: () => spine.spineData.animations.map(animation => animation.name), set: () => {} });
-        spineDefs.push({ key: "spinePlaybackSpeed", get: () => spine.state.timeScale, set: playbackSpeed => { 
-          spine.state.timeScale = playbackSpeed 
-        } });
-      }
+      const spineDefs = getSpinePropDefinitions(node);
 
       // Scene
       const sceneDefs: PropertyMapping[] = [];
