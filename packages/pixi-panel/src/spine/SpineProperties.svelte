@@ -1,115 +1,20 @@
 <script lang="ts">
-  import { afterUpdate, createEventDispatcher, onMount } from "svelte";
+  import { createEventDispatcher } from "svelte";
   import SelectMenu from "blender-elements/src/SelectMenu/SelectMenu.svelte";
   import Panel from "blender-elements/src/Panel/Panel.svelte";
   import Toggle from "blender-elements/src/Toggle/Toggle.svelte";
-  import { 
-    Timeline,
-    TimelineEventSource, 
-    TimelineInteractionMode, 
-    TimelineKeyframeShape, 
-    TimelineModel, 
-    TimelineOptions, 
-    TimelineTimeChangedEvent 
-  } from "animation-timeline-js";
+  import TracksTimeline from "./composites/TracksTimeline.svelte";
 
   import type { SpineProperties } from "./types";
 
   export let props: SpineProperties;
   export let expanded: Record<string, boolean>;
-  let prevProps: SpineProperties = props;
 
   const dispatch = createEventDispatcher();
-
-  const ROW_STYLE = Object.freeze({
-    groupsStyle: {
-      strokeColor: "Transparent",
-      fillColor: "#094771",
-      keyframesStyle: {
-        shape: TimelineKeyframeShape.Rect,
-        width: 2,
-        height: 20,
-        strokeColor: "Transparent",
-        fillColor: "Transparent"
-      }
-    }
-  });
-
-  let timelineContainerElement: HTMLDivElement;
-  let timeline: Timeline;
-
-  $: {
-    if (props.spineAnimationDuration && props.spineAnimationDuration !== prevProps.spineAnimationDuration) {
-      timeline.setModel({ 
-        rows: [
-          {
-            keyframes: [ { val: 0 }, { val: props.spineAnimationDuration * 1000 } ],
-            style: ROW_STYLE
-          }
-        ]
-      });
-    }
-
-     prevProps = props;
-  }
 
   $: animationNamesPanel =
     typeof props.spineAnimationNames === "object" &&
     Array.isArray(props.spineAnimationNames);
-
-  afterUpdate(() => {
-    timeline.setTime((props.spineAnimationHead || 0) * 1000);
-  })
-
-  onMount(() => {
-    const options: TimelineOptions = { 
-      id: timelineContainerElement, 
-      groupsDraggable: false, 
-      keyframesDraggable: false,
-      headerFillColor: "#292929",
-      fillColor: "#292929",
-      leftMargin: 3,
-      snapEnabled: false
-    };
-
-    const model : TimelineModel = {
-      rows: [
-        {
-          keyframes: [],
-          style: { ...ROW_STYLE }
-        }
-      ]
-    };
-
-    if (props.spineAnimationDuration) {
-      model.rows[0].keyframes?.push({ val: 0 }, { val: props.spineAnimationDuration * 1000 })
-    }
-
-    timeline = new Timeline(options, model);
-    timeline.setTime((props.spineAnimationHead || 0) * 1000);
-    timeline.setInteractionMode(TimelineInteractionMode.NonInteractivePan);
-
-    timeline.onMouseDown(() => {
-      const lockedPlaybackSpeed = props.spinePlaybackSpeed;
-      const restorePlaybackSpeed = () => dispatch("change", { property: "spinePlaybackSpeed", value: lockedPlaybackSpeed })
-      const restorePlaybackSpeedSelfDisposed = () => {
-        restorePlaybackSpeed()
-        window.removeEventListener("mouseup", restorePlaybackSpeedSelfDisposed)
-      }
-
-      dispatch("change", { property: "spinePlaybackSpeed", value: 0 })
-      window.addEventListener("mouseup", restorePlaybackSpeedSelfDisposed)
-    });
-
-    timeline.onTimeChanged((event: TimelineTimeChangedEvent) => {
-      if(event.source === TimelineEventSource.User) {
-        dispatch("change", { property: "spineAnimationHead", value: event.val / 1000 })
-      }
-    });
-
-    timeline._formatUnitsText = (val) => `${val / 1000}s`; // eslint-disable-line no-underscore-dangle
-    });
-
 </script>
 
 {#if animationNamesPanel && Array.isArray(props.spineAnimationNames) && props.spineAnimationNames.length > 0}
@@ -151,7 +56,12 @@
       </div>
     </div>
 
-    <div id="tracksCanvas" bind:this={timelineContainerElement} />
+    <TracksTimeline
+      totalDuration={props.spineAnimationDuration}
+      head={props.spineAnimationHead}
+      speed={props.spinePlaybackSpeed}
+      on:change
+    />
   </Panel>
   <Panel title="Track 0" bind:expanded={expanded.ticker}>
     <SelectMenu
@@ -163,11 +73,6 @@
 {/if}
 
 <style lang="scss">
-  #tracksCanvas {
-    width: 100%;
-    height: 200px;
-  }
-
   .playback-controls {
     display: flex;
     flex-direction: row;
