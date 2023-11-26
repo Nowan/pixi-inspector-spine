@@ -1,10 +1,12 @@
-import type { IAnimation, ITrackEntry } from "pixi-spine";
+import type { IAnimation, ISkin, ITrackEntry } from "pixi-spine";
 
 export type SpineProperties = {
   spineAnimationHead: number;
   spinePlaybackSpeed: number;
   spineTracks: SpineSerializableTrackData[];
-  spineAnimations: IAnimation[];
+  spineAnimations: SpineSerializableAnimationData[];
+  spineSkins: SpineSerializableSkinData[];
+  spineActiveSkin: SpineSerializableSkinData;
 }
 
 export type SpineSerializableTrackData = SpineSerializableTrackEntry[] | null
@@ -16,6 +18,8 @@ export type SpineSerializableTrackEntry = {
 }
 
 export type SpineSerializableAnimationData = Omit<IAnimation, "timelines">;
+
+export type SpineSerializableSkinData = typeof ISkin["name"];
 
 export type TrackEntry = ITrackEntry & { animation: IAnimation, next: TrackEntry | null }
 

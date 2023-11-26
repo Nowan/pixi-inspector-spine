@@ -1,6 +1,6 @@
 import type { GameObjects } from "phaser";
 import type { Application, DisplayObject } from "pixi.js";
-import type { IAnimation, Spine } from "pixi-spine";
+import type { IAnimation, ISkeleton, ISkin, Spine } from "pixi-spine";
 import type {
   NodeProperties,
   PixiDevtools,
@@ -8,7 +8,7 @@ import type {
   PropertyTab,
   PropertyTabState,
 } from "../types";
-import type { SpineSerializableAnimationData, SpineSerializableTrackData, SpineSerializableTrackEntry, TrackEntry } from "../spine/types";
+import type { SpineSerializableAnimationData, SpineSerializableSkinData, SpineSerializableTrackData, SpineSerializableTrackEntry, TrackEntry } from "../spine/types";
 
 type PropertyMapping<T = any> = {
   key: keyof NodeProperties;
@@ -108,8 +108,20 @@ export default function pixiDevtoolsProperties(devtools: PixiDevtools) {
       const spine = node as Spine;
       
       spineDefs.push({ key: "spineAnimations", get: () => spine.spineData.animations.map(animation => parseSerializableAnimationData(animation)), set: () => {} });
+      spineDefs.push({ key: "spineSkins", get: () => spine.spineData.skins.map(skin => parseSerializableSkinData(skin)), set: () => {} });
       spineDefs.push({ key: "spinePlaybackSpeed", get: () => spine.state.timeScale, set: playbackSpeed => { spine.state.timeScale = playbackSpeed; } });
 
+      spineDefs.push({ 
+        key: "spineActiveSkin", 
+        get: () => spine.skeleton.skin ? parseSerializableSkinData(spine.skeleton.skin) : "default", 
+        set: (nextActiveSkin) => {
+          const skeleton = spine.skeleton as ISkeleton & { setSkin: (skin: ISkin | null) => void }
+          skeleton.setSkin(null);
+          skeleton.setToSetupPose();
+          skeleton.setSkinByName(nextActiveSkin)
+        }
+      });
+      
       spineDefs.push({
         key: "spineTracks",
         get: () => spine.state.tracks.map(trackEntry => parseSerializableTrackData(trackEntry as TrackEntry)),
@@ -200,6 +212,10 @@ export default function pixiDevtoolsProperties(devtools: PixiDevtools) {
       name: animation.name,
       duration: animation.duration
     }
+  }
+
+  function parseSerializableSkinData(skin: ISkin): SpineSerializableSkinData {
+    return skin.name
   }
 
   function getPropDefinition(

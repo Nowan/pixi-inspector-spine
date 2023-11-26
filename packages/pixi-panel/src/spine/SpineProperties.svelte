@@ -2,6 +2,7 @@
   import type { NodeProperties } from "../types";
   import PlaybackPanel from "./composites/PlaybackPanel.svelte";
   import DebugPanel from "./composites/DebugPanel.svelte";
+  import SkinsPanel from "./composites/SkinsPanel.svelte";
 
   export let props: NodeProperties;
   export let expanded: Record<string, boolean>;
@@ -13,6 +14,12 @@
   props={props}
   bind:expanded={expanded.spinePlaybackPanel} 
   on:change 
+/>
+<SkinsPanel 
+  skins={props.spineSkins}
+  activeSkin={props.spineActiveSkin}
+  bind:expanded={expanded.spineSkinsPanel} 
+  on:change
 />
 <DebugPanel 
   props={props}
