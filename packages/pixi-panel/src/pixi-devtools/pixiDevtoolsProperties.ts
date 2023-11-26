@@ -1,6 +1,6 @@
 import type { GameObjects } from "phaser";
 import type { Application, DisplayObject } from "pixi.js";
-import type { ITrackEntry, IAnimation, Spine } from "pixi-spine";
+import type { IAnimation, Spine } from "pixi-spine";
 import type {
   NodeProperties,
   PixiDevtools,
@@ -8,6 +8,7 @@ import type {
   PropertyTab,
   PropertyTabState,
 } from "../types";
+import type { SpineSerializableAnimationData, SpineSerializableTrackData, SpineSerializableTrackEntry, TrackEntry } from "../spine/types";
 
 type PropertyMapping<T = any> = {
   key: keyof NodeProperties;
@@ -105,46 +106,95 @@ export default function pixiDevtoolsProperties(devtools: PixiDevtools) {
 
     if (devtools.isPixi(node as UniversalNode) && "spineData" in node && "state" in node) {
       const spine = node as Spine;
+      
+      spineDefs.push({ key: "spineAnimations", get: () => spine.spineData.animations.map(animation => parseSerializableAnimationData(animation)), set: () => {} });
+      spineDefs.push({ key: "spinePlaybackSpeed", get: () => spine.state.timeScale, set: playbackSpeed => { spine.state.timeScale = playbackSpeed; } });
 
-      spineDefs.push({ 
-        key: "spineAnimationName", 
-        get: () => {
-          if (spine.state.tracks.length > 0) {
-            const track = spine.state.tracks[0] as ITrackEntry & { animation: IAnimation | undefined }
-            return track.animation ? track.animation.name : "";
-          }
-          return "";
-        }, 
-        set: (value) => {
-          if (value) {
-            spine.state.setAnimation(0, value, true);
-          }
-          else {
-            spine.skeleton.setToSetupPose();
-            spine.state.tracks.length = 0; // eslint-disable-line no-param-reassign
+      spineDefs.push({
+        key: "spineTracks",
+        get: () => spine.state.tracks.map(trackEntry => parseSerializableTrackData(trackEntry as TrackEntry)),
+        set: (nextTracks) => {
+          spine.state.tracks = []
+          spine.skeleton.setToSetupPose();
+
+          for (let trackIndex = 0; trackIndex < nextTracks.length; trackIndex += 1) {
+            const trackData = nextTracks[trackIndex]
+            
+            if (trackData) {
+              for (let entryIndex = 0; entryIndex < trackData.length; entryIndex += 1) {
+                const entry = trackData[entryIndex]
+
+                if (entryIndex === 0) {
+                  spine.state.setAnimation(trackIndex, entry.animation.name, entry.loop)
+                }
+                else {
+                  spine.state.addAnimation(trackIndex, entry.animation.name, entry.loop, 0)
+                }
+              }
+            }
           }
         }
-      });
+      })
 
       spineDefs.push({ 
         key: "spineAnimationHead", 
-        get: () => spine.state.tracks[0] ? spine.state.tracks[0].trackTime % spine.state.tracks[0].animationEnd : 0,
+        get: () => {
+          const tracksDurations = spine.state.tracks.map(trackEntry => {
+            let accumulatedTrackChainDuration = (trackEntry as TrackEntry).animation.duration;
+            let nextTrackEntry = (trackEntry as TrackEntry).next;
+
+            while (nextTrackEntry) {
+              accumulatedTrackChainDuration += nextTrackEntry.animation.duration
+              nextTrackEntry = nextTrackEntry.next;
+            }
+
+            return accumulatedTrackChainDuration
+          })
+          const maxTrackDuration = tracksDurations.reduce((a, b) => Math.max(a, b), 0)
+          const maxDurationTrackIndex = tracksDurations.indexOf(maxTrackDuration)
+          const maxDurationTrack = spine.state.tracks[maxDurationTrackIndex]
+
+          return maxDurationTrack.trackTime % maxDurationTrack.animationEnd
+        },
         set: head => {
           const { timeScale } = spine.state;
-
+          
           spine.state.timeScale = 1;
           spine.state.tracks[0].trackTime = 0;
           spine.update(head)
           spine.state.timeScale = timeScale;
         }
       });
-
-      spineDefs.push({ key: "spineAnimationDuration", get: () => spine.state.tracks[0] ? spine.state.tracks[0].animationEnd : 0, set: () => {} });
-      spineDefs.push({ key: "spineAnimationNames", get: () => spine.spineData.animations.map(animation => animation.name), set: () => {} });
-      spineDefs.push({ key: "spinePlaybackSpeed", get: () => spine.state.timeScale, set: playbackSpeed => { spine.state.timeScale = playbackSpeed; } });
     }
 
     return spineDefs;
+  }
+
+  function parseSerializableTrackData(trackEntry: TrackEntry): SpineSerializableTrackData {
+    const trackData: SpineSerializableTrackData = [ parseSerializableTrackEntry(trackEntry) ]
+    let nextTrackEntry = trackEntry.next;
+
+    while (nextTrackEntry) {
+      trackData.push(parseSerializableTrackEntry(nextTrackEntry))
+      nextTrackEntry = nextTrackEntry.next;
+    }
+    
+    return trackData;
+  }
+
+  function parseSerializableTrackEntry(trackEntry: TrackEntry): SpineSerializableTrackEntry {
+    return {
+      animation: parseSerializableAnimationData(trackEntry.animation),
+      loop: trackEntry.loop,
+      delay: trackEntry.delay
+    }
+  }
+
+  function parseSerializableAnimationData(animation: IAnimation): SpineSerializableAnimationData {
+    return {
+      name: animation.name,
+      duration: animation.duration
+    }
   }
 
   function getPropDefinition(

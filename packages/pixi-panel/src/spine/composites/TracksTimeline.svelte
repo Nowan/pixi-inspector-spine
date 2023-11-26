@@ -1,11 +1,12 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import { TimelineEventSource, TimelineKeyframeShape, TimelineModel, TimelineOptions, TimelineTimeChangedEvent } from "animation-timeline-js";
+  import { TimelineEventSource, TimelineKeyframe, TimelineKeyframeShape, TimelineModel, TimelineOptions, TimelineTimeChangedEvent } from "animation-timeline-js";
+  import type { SpineSerializableTrackData } from "../types";
   import Timeline from "./Timeline.svelte";
 
-  export let totalDuration: number = 0;
   export let head: number = 0;
   export let speed: number = 1;
+  export let tracks: SpineSerializableTrackData[] = [];
 
   const OPTIONS: TimelineOptions = { 
     groupsDraggable: false, 
@@ -33,12 +34,30 @@
   const dispatch = createEventDispatcher();
   
   $: model = {
-    rows: [
-      {
-        keyframes: totalDuration > 0 ? [ { val: 0 }, { val: totalDuration * 1000 } ] : [],
+    rows: tracks.map(trackData => {
+      const keyframes: TimelineKeyframe[] = [];
+
+      if (trackData) {
+        let lastTrackEnd = 0;
+
+        for (let i = 0; i < trackData.length; i += 1) {
+          const trackEntry = trackData[i];
+          const trackEntryDuration = trackEntry.animation.duration * 1000;
+
+          keyframes.push(
+            { val: lastTrackEnd, group: trackEntry.animation.name }, 
+            { val: lastTrackEnd + trackEntryDuration, group: trackEntry.animation.name }
+          );
+
+          lastTrackEnd += trackEntryDuration;
+        }
+      }
+
+      return {
+        keyframes,
         style: { ...ROW_STYLE }
       }
-    ]
+    })
   } as TimelineModel;
 
   const onTimeChanged = (event: CustomEvent<TimelineTimeChangedEvent>) => {

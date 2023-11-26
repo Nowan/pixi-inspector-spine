@@ -120,4 +120,4 @@ export type NodeProperties = {
   whiteSpace?: TextStyleWhiteSpace;
   wordWrap?: boolean;
   wordWrapWidth?: number;
-} & SpineProperties;
+} & Partial<SpineProperties>;

@@ -2,13 +2,13 @@
   import { createEventDispatcher } from "svelte";
   import Panel from "blender-elements/src/Panel/Panel.svelte";
   import Toggle from "blender-elements/src/Toggle/Toggle.svelte";
-  import type { SpineProperties } from "../types";
+  import type { NodeProperties } from "../../types";
   import TracksTimeline from "./TracksTimeline.svelte";
 
-  const dispatch = createEventDispatcher();
-
-  export let props: SpineProperties;
+  export let props: NodeProperties;
   export let expanded: boolean;
+
+  const dispatch = createEventDispatcher();
 </script>
 
 <Panel title="Playback" bind:expanded>
@@ -41,16 +41,14 @@
         icon="fastForward"
         value={false}
         location="ALONE"
-        on:change={() =>
-          dispatch("change", { property: "fontStyle", value: "normal" })}
       />
     </div>
   </div>
 
   <TracksTimeline
-    totalDuration={props.spineAnimationDuration}
     head={props.spineAnimationHead}
-    speed={props.spinePlaybackSpeed}
+    speed={1}
+    tracks={props.spineTracks}
     on:change
   />
 </Panel>

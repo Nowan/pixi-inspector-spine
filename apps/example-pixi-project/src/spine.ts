@@ -23,9 +23,13 @@ Assets.load("assets/spineboy-pro.json").then((resource) => {
   spine.scale.set(0.6);
   spine.position.set(app.screen.width * 0.5, 480);
 
-  spine.state.setAnimation(0, "hoverboard", true);
-  spine.autoUpdate = true;
+  spine.state.setAnimation(0, "run", false);
+  spine.state.addAnimation(0, "run-to-idle", false, 0);
+  spine.state.addAnimation(0, "idle", true, 0);
 
+  spine.state.setAnimation(1, "shoot", true);
+  spine.autoUpdate = true;
+  
   app.stage.addChild(spine);
 
   (globalThis as any).$pixi = spine; // eslint-disable-line
