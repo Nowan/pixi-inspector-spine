@@ -139,6 +139,8 @@ export default function pixiDevtoolsProperties(devtools: PixiDevtools) {
       spineDefs.push({ 
         key: "spineAnimationHead", 
         get: () => {
+          if (spine.state.tracks.length === 0) return 0;
+
           const tracksDurations = spine.state.tracks.map(trackEntry => {
             let accumulatedTrackChainDuration = (trackEntry as TrackEntry).animation.duration;
             let nextTrackEntry = (trackEntry as TrackEntry).next;
@@ -150,6 +152,7 @@ export default function pixiDevtoolsProperties(devtools: PixiDevtools) {
 
             return accumulatedTrackChainDuration
           })
+          
           const maxTrackDuration = tracksDurations.reduce((a, b) => Math.max(a, b), 0)
           const maxDurationTrackIndex = tracksDurations.indexOf(maxTrackDuration)
           const maxDurationTrack = spine.state.tracks[maxDurationTrackIndex]
@@ -160,7 +163,9 @@ export default function pixiDevtoolsProperties(devtools: PixiDevtools) {
           const { timeScale } = spine.state;
           
           spine.state.timeScale = 1;
-          spine.state.tracks[0].trackTime = 0;
+          for (const trackEntry of spine.state.tracks) {
+            trackEntry.trackTime = 0;
+          }
           spine.update(head)
           spine.state.timeScale = timeScale;
         }
