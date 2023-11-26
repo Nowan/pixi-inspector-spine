@@ -17,11 +17,11 @@ canvas.style.width = "640px";
 canvas.style.maxWidth = "100%";
 document.body.appendChild(canvas);
 
-Assets.load("assets/spineboy-pro.json").then((resource) => {
+Assets.load("assets/spineboy/spineboy.json").then((resource) => {
   const spine = new Spine(resource.spineData);
 
   spine.scale.set(0.6);
-  spine.position.set(app.screen.width * 0.5, 480);
+  spine.position.set(app.screen.width * 0.5 - 150, 480);
 
   spine.state.setAnimation(0, "run", false);
   spine.state.addAnimation(0, "run-to-idle", false, 0);
@@ -33,6 +33,20 @@ Assets.load("assets/spineboy-pro.json").then((resource) => {
   app.stage.addChild(spine);
 
   (globalThis as any).$pixi = spine; // eslint-disable-line
+});
+
+Assets.load("assets/mix-and-match/mix-and-match.json").then((resource) => {
+  const spine = new Spine(resource.spineData);
+
+  spine.scale.set(0.6);
+  spine.position.set(app.screen.width * 0.5 + 160, app.screen.height * 0.5 + 240);
+
+  spine.skeleton.setSkinByName("full-skins/boy");
+  spine.state.setAnimation(0, "idle", true);
+
+  spine.autoUpdate = true;
+  
+  app.stage.addChild(spine);
 });
 
 const exposeApp = true;
