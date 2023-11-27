@@ -85,6 +85,10 @@ importers:
         version: 5.2.2
 
   apps/chrome-extension:
+    dependencies:
+      animation-timeline-js:
+        specifier: ^2.3.0
+        version: 2.3.0
     devDependencies:
       esbuild:
         specifier: ^0.19.5
@@ -125,6 +129,9 @@ importers:
 
   apps/firefox-extension:
     dependencies:
+      animation-timeline-js:
+        specifier: ^2.3.0
+        version: 2.3.0
       web-ext:
         specifier: ^7.8.0
         version: 7.8.0
